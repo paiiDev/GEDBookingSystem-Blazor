@@ -2,6 +2,8 @@
 @using GedBooking.Shared.DTOs
 @inject IBookingService BookingService
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
+
 
 <PageTitle>GED Exam Bookings</PageTitle>
 
@@ -56,6 +58,19 @@ else
         </div>
     </div>
 
+    <!-- Search and Filter Section -->
+    <div class="row mb-3 align-items-center">
+        <div class="col-md-6">
+            <!--@bind:event="oninput" သည် စာရိုက်နေစဉ် ချက်ချင်း Real-time အလုပ်လုပ်စေပါသည် -->
+            <input type="text" class="form-control" placeholder="🔍 Search by student name or subject..."
+                   @bind="SearchText" @bind:event="oninput" />
+        </div>
+        <div class="col-md-6 text-end">
+            <!-- Child Component ကို ခေါ်သုံးခြင်း -->
+            <StatusFilter CurrentStatus="@currentStatus" OnStatusChanged="HandleStatusChange" />
+        </div>
+    </div>
+
     <!-- Bookings Data Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
@@ -72,7 +87,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in bookings)
+                    @foreach (var item in filteredBookings)
                     {
                         <tr>
                             <td class="ps-3 fw-semibold">#@item.Id</td>
@@ -93,6 +108,9 @@ else
                                         @onclick="() => GoToEditPage(item.Id)">
                                     Edit
                                 </button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteBooking(item.Id)">
+                                    Delete
+                                </button>
                             </td>
                         </tr>
                     }
@@ -104,21 +122,53 @@ else
 
 @code {
     private List<ExamBookingDto> bookings = new();
+    private List<ExamBookingDto> filteredBookings = new(); // UI တွင် ပြသမည့် List
     private bool isLoading = true;
 
-    // Component စတင်ပွင့်လာချိန်တွင် API မှ Data ဆွဲထုတ်ခြင်း
+    // Filter သိမ်းဆည်းရန် Variables
+    private string currentStatus = "All";
+    private string _searchText = "";
+
+    // C# Property ကိုသုံး၍ စာရိုက်တိုင်း FilterData() ကို အလိုအလျောက် ခေါ်ပေးခြင်း
+    private string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            _searchText = value;
+            FilterData();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
         bookings = await BookingService.GetBookingsAsync();
+        filteredBookings = bookings; // အစပိုင်းတွင် အကုန်ပြရန်
         isLoading = false;
     }
 
-    // NavigationManager သုံးပြီး Page ကူးပြောင်းခြင်း
+    // StatusFilter Component မှ Event လှမ်းပို့လျှင် အလုပ်လုပ်မည့် Method
+    private void HandleStatusChange(string status)
+    {
+        currentStatus = status;
+        FilterData();
+    }
+
+    // Logic: Status နှင့် Search တွဲ၍ စစ်ထုတ်ခြင်း
+    private void FilterData()
+    {
+        filteredBookings = bookings.Where(b =>
+            (currentStatus == "All" || b.Status == currentStatus) &&
+            (string.IsNullOrWhiteSpace(SearchText) ||
+             b.StudentName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+             b.Subject.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        ).ToList();
+    }
+
     private void GoToCreatePage() => NavManager.NavigateTo("/bookings/create");
     private void GoToEditPage(int id) => NavManager.NavigateTo($"/bookings/edit/{id}");
 
-    // Status အလိုက် Badge အရောင်ခွဲခြားပေးသော Helper Method
     private string GetStatusBadgeClass(string status) => status switch
     {
         "Approved" => "bg-success",
@@ -126,4 +176,20 @@ else
         "Rejected" => "bg-danger",
         _ => "bg-secondary"
     };
+
+    private async Task DeleteBooking(int id)
+    {
+        bool isConfirmed = await JS.InvokeAsync<bool>("showDeleteConfirm", "This booking data will be permanently removed!");
+
+        // 2. User က Yes နှိပ်မှသာ API သို့ Delete Request ပို့မည်
+        if (isConfirmed)
+        {
+            var success = await BookingService.DeleteBookingAsync(id);
+            if (success)
+            {
+                await JS.InvokeVoidAsync("showToast", "Booking deleted successfully!", "success");
+                await OnInitializedAsync();
+            }
+        }
+    }
 }

@@ -1,0 +1,29 @@
+﻿<div class="btn-group shadow-sm" role="group">
+    @foreach (var status in statuses)
+    {
+        <button type="button"
+                class="btn @(CurrentStatus == status ? "btn-primary" : "btn-outline-primary")"
+                @onclick="() => SelectStatus(status)">
+            @status
+        </button>
+    }
+</div>
+
+@code {
+    // 1. Parent (Bookings.razor) မှ Data လက်ခံရန် Parameter
+    [Parameter]
+    public string CurrentStatus { get; set; } = "All";
+
+    // 2. Parent သို့ Data ပြန်ပို့ပေးရန် Event
+    [Parameter]
+    public EventCallback<string> OnStatusChanged { get; set; }
+
+    private string[] statuses = { "All", "Pending", "Approved", "Rejected" };
+
+    // 3. Button နှိပ်လိုက်သောအခါ EventCallback ကို လှမ်းခေါ်ခြင်း
+    private async Task SelectStatus(string status)
+    {
+        CurrentStatus = status;
+        await OnStatusChanged.InvokeAsync(status);
+    }
+}

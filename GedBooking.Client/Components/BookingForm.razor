@@ -1,0 +1,152 @@
+﻿@page "/bookings/create"
+@page "/bookings/edit/{id:int}"
+@using GedBooking.Shared.DTOs
+@inject IBookingService BookingService
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+
+<PageTitle>@(Id.HasValue ? "Edit Booking" : "New Booking")</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">@(Id.HasValue ? "Edit Booking" : "Create New Booking")</h3>
+    <button class="btn btn-outline-secondary" @onclick="GoBack">Back to List</button>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <!-- 1. EditForm နှင့် DataAnnotationsValidator -->
+        <EditForm Model="booking" OnValidSubmit="SaveBooking">
+            <DataAnnotationsValidator />
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student Name</label>
+                    <InputText @bind-Value="booking.StudentName" class="form-control" placeholder="Enter full name" />
+                    <!-- 2. Error Message ပြသမည့်နေရာ -->
+                    <ValidationMessage For="@(() => booking.StudentName)" class="text-danger small" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email Address</label>
+                    <InputText @bind-Value="booking.Email" type="email" class="form-control" placeholder="student@gmail.com" />
+                    <ValidationMessage For="@(() => booking.Email)" class="text-danger small" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Exam Subject</label>
+                    <!-- 3. InputSelect အသုံးပြုခြင်း -->
+                    <InputSelect @bind-Value="booking.Subject" class="form-select">
+                        <option value="Mathematical Reasoning">Mathematical Reasoning</option>
+                        <option value="Reasoning Through Language Arts">Language Arts (RLA)</option>
+                        <option value="Science">Science</option>
+                        <option value="Social Studies">Social Studies</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => booking.Subject)" class="text-danger small" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Exam Date</label>
+                    <InputDate @bind-Value="booking.ExamDate" class="form-control" />
+                    <ValidationMessage For="@(() => booking.ExamDate)" class="text-danger small" />
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">Exam Fee ($)</label>
+                    <InputNumber @bind-Value="booking.ExamFee" class="form-control" />
+                    <ValidationMessage For="@(() => booking.ExamFee)" class="text-danger small" />
+                </div>
+                @if (Id.HasValue)
+                {
+                    <div class="col-md-6">
+                        <label class="form-label">Approval Status</label>
+                        <InputSelect @bind-Value="booking.Status" class="form-select">
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </InputSelect>
+                    </div>
+                }
+            </div>
+
+            <hr class="text-muted" />
+            <div class="text-end mt-3">
+                <button type="submit" class="btn btn-primary px-4" disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Saving...</span>
+                    }
+                    else
+                    {
+                        <span>@(Id.HasValue ? "Update Booking" : "Submit Booking")</span>
+                    }
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    // URL ထဲမှ {id} ကို ဖမ်းယူရန် Parameter (Create အချိန်တွင် null ဖြစ်နေမည်)
+    [Parameter]
+    public int? Id { get; set; }
+
+    private ExamBookingDto booking = new();
+    private bool isSaving = false;
+
+    // Component သို့ Parameter များ ရောက်လာချိန်တွင် အလုပ်လုပ်သည့် Lifecycle Method
+    protected override async Task OnParametersSetAsync()
+    {
+        // Edit Mode ဖြစ်လျှင် API မှ Data လှမ်းယူမည်
+        if (Id.HasValue)
+        {
+            var result = await BookingService.GetBookingByIdAsync(Id.Value);
+            if (result != null)
+            {
+                booking = result;
+            }
+        }
+        else
+        {
+            // Create Mode ဖြစ်လျှင် အသစ်ပြန်စမည်
+            booking = new ExamBookingDto { ExamDate = DateTime.Today.AddDays(7), ExamFee = 80 };
+        }
+    }
+
+    // Validation အောင်မြင်မှသာ အလုပ်လုပ်မည့် Method
+    private async Task SaveBooking()
+    {
+        isSaving = true;
+
+        bool success;
+        if (Id.HasValue)
+        {
+            // Edit Mode - PUT Request
+            success = await BookingService.UpdateBookingAsync(Id.Value, booking);
+        }
+        else
+        {
+            // Create Mode - POST Request
+            success = await BookingService.CreateBookingAsync(booking);
+        }
+
+        isSaving = false;
+
+        if (success)
+        {
+            // JS Toast ခေါ်ပြီးမှ Page ပြန်ကူးမည်
+            string msg = Id.HasValue ? "Booking updated successfully!" : "Booking created successfully!";
+            await JS.InvokeVoidAsync("showToast", msg, "success");
+
+            NavManager.NavigateTo("/bookings");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("showToast", "An error occurred while saving.", "error");
+        }
+    }
+
+    private void GoBack() => NavManager.NavigateTo("/bookings");
+}
