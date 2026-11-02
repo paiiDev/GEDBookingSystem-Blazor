@@ -1,4 +1,5 @@
-﻿using GedBooking.Shared.DTOs;
+﻿using GedBooking.Infrastructure.Interfaces;
+using GedBooking.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,23 +9,23 @@ namespace GedBooking.Api.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private static readonly List<ExamBookingDto> _bookings = new List<ExamBookingDto>
+        private readonly IBookingRepository _repo;
+
+        public BookingController(IBookingRepository repo)
         {
-        new ExamBookingDto { Id = 1, StudentName = "Aung Kyaw", Email = "aung@gmail.com", Subject = "Mathematical Reasoning", ExamDate = DateTime.Today.AddDays(5), ExamFee = 80, Status = "Approved" },
-        new ExamBookingDto { Id = 2, StudentName = "Su Su", Email = "susu@gmail.com", Subject = "Science", ExamDate = DateTime.Today.AddDays(10), ExamFee = 80, Status = "Pending" },
-        new ExamBookingDto { Id = 3, StudentName = "Min Khant", Email = "min@gmail.com", Subject = "Social Studies", ExamDate = DateTime.Today.AddDays(12), ExamFee = 80, Status = "Rejected" }
-        };
+            _repo = repo;
+        }
 
         [HttpGet]
-        public ActionResult<List<ExamBookingDto>> GetBookings()
+        public async Task<ActionResult<List<ExamBookingDto>>> GetBookings()
         {
-            return Ok(_bookings);
+            return Ok(await _repo.GetAllAsync());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ExamBookingDto> GetBookingById(int id)
+        public async Task<ActionResult<ExamBookingDto>> GetBookingById(int id)
         {
-            var booking = _bookings.FirstOrDefault(b => b.Id == id);
+            var booking = await _repo.GetByIdAsync(id);
             if (booking == null)
             {
                 return NotFound();
@@ -33,38 +34,37 @@ namespace GedBooking.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ExamBookingDto> CreateBooking([FromBody] ExamBookingDto dto)
+        public async Task<ActionResult<ExamBookingDto>> CreateBooking([FromBody] ExamBookingDto dto)
         {
-            dto.Id = _bookings.Any() ? _bookings.Max(b => b.Id) + 1 : 1;
-            _bookings.Add(dto);
-            return CreatedAtAction(nameof(GetBookingById), new { id = dto.Id }, dto);
+            if(dto == null)
+            {
+                return BadRequest();
+            }
+            var created = await _repo.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetBookingById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id:int}")]
-        public IActionResult Update(int id, ExamBookingDto updated)
+        public async Task<IActionResult> Update(int id, ExamBookingDto updated)
         {
-            var existing = _bookings.FirstOrDefault(b => b.Id == id);
-            if (existing is null) return NotFound();
-
-            existing.StudentName = updated.StudentName;
-            existing.Email = updated.Email;
-            existing.Subject = updated.Email;
-            existing.Subject = updated.Subject;
-            existing.ExamDate = updated.ExamDate;
-            existing.ExamFee = updated.ExamFee;
-            existing.Status = updated.Status;
-
+            var esisting = await _repo.GetByIdAsync(id);
+            if(esisting == null) return NotFound();
+            var result = await _repo.UpdateAsync(id, updated);
+            if (!result) return NotFound();
             return NoContent();
         }
+
+           
 
         [HttpDelete("{id:int}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var existing = _bookings.FirstOrDefault(b => b.Id == id);
-            if (existing is null) return NotFound();
-
-            _bookings.Remove(existing);
+            var existing = await _repo.GetByIdAsync(id);
+            if(existing == null) return NotFound();
+            var result = await _repo.DeleteAsync(id);
+            if (!result) return NotFound();
             return NoContent();
         }
+            
     }
 }
