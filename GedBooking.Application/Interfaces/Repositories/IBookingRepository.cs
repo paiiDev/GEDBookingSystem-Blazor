@@ -1,16 +1,13 @@
-﻿using GedBooking.Shared.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using GedBooking.Domain.Entities;
 
 namespace GedBooking.Application.Interfaces.Repositories
 {
     public interface IBookingRepository
     {
-        Task<List<ExamBookingDto>> GetAllAsync();
-        Task<ExamBookingDto?> GetByIdAsync(int id);
-        Task<ExamBookingDto> CreateAsync(ExamBookingDto booking);
-        Task<bool> UpdateAsync(int id, ExamBookingDto booking);
-        Task<bool> DeleteAsync(int id);
+        Task<List<ExamBooking>> GetAllAsync();
+        Task<ExamBooking?> GetByIdAsync(int id);
+        Task<ExamBooking> AddAsync(ExamBooking entity);
+        Task UpdateAsync(ExamBooking entity);
+        Task DeleteAsync(ExamBooking entity);
     }
 }

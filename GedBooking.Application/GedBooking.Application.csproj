@@ -7,15 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="MediatR" Version="14.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GedBooking.Domain\GedBooking.Domain.csproj" />
     <ProjectReference Include="..\GedBooking.Shared\GedBooking.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Bookings\Commands\" />
     <Folder Include="Interfaces\Services\" />
   </ItemGroup>
 
