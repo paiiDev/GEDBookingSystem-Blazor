@@ -1,5 +1,6 @@
+using GedBooking.Application.Features.Bookings.Queries.GetAllBookings;
+using GedBooking.Application.Interfaces.Repositories;
 using GedBooking.Infrastructure.Data;
-using GedBooking.Infrastructure.Interfaces;
 using GedBooking.Infrastructure.Mappings;
 using GedBooking.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,8 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllBookingsQuery).Assembly));
 
 
 builder.Services.AddControllers();

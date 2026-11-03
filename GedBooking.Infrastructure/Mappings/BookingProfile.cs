@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GedBooking.Infrastructure.Entities;
+using GedBooking.Domain.Entities;
 using GedBooking.Shared.DTOs;
 using System;
 using System.Collections.Generic;

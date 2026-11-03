@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using GedBooking.Application.Interfaces.Repositories;
+using GedBooking.Domain.Entities;
 using GedBooking.Infrastructure.Data;
-using GedBooking.Infrastructure.Entities;
-using GedBooking.Infrastructure.Interfaces;
 using GedBooking.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;

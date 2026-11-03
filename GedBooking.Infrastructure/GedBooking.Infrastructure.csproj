@@ -17,6 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GedBooking.Application\GedBooking.Application.csproj" />
+    <ProjectReference Include="..\GedBooking.Domain\GedBooking.Domain.csproj" />
     <ProjectReference Include="..\GedBooking.Shared\GedBooking.Shared.csproj" />
   </ItemGroup>
 

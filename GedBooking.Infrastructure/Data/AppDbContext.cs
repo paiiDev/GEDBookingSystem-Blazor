@@ -1,4 +1,4 @@
-﻿using GedBooking.Infrastructure.Entities;
+﻿using GedBooking.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

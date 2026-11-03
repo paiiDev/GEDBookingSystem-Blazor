@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace GedBooking.Infrastructure.Entities
+namespace GedBooking.Domain.Entities
 {
     public class ExamBooking
     {

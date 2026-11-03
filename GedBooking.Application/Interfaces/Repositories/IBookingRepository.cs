@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GedBooking.Infrastructure.Interfaces
+namespace GedBooking.Application.Interfaces.Repositories
 {
     public interface IBookingRepository
     {

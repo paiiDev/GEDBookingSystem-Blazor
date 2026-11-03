@@ -1,6 +1,8 @@
 <Solution>
   <Project Path="GedBooking.Api/GedBooking.Api.csproj" />
+  <Project Path="GedBooking.Application/GedBooking.Application.csproj" Id="a5a11ba1-9942-46e8-a16f-ec86928eb8cb" />
   <Project Path="GedBooking.Client/GedBooking.Client.csproj" />
+  <Project Path="GedBooking.Domain/GedBooking.Domain.csproj" Id="7e1e6a51-61ca-46aa-b8f0-455fd415709c" />
   <Project Path="GedBooking.Infrastructure/GedBooking.Infrastructure.csproj" Id="dffd0f36-e441-4454-b119-fd521fac960b" />
   <Project Path="GedBooking.Shared/GedBooking.Shared.csproj" />
 </Solution>
