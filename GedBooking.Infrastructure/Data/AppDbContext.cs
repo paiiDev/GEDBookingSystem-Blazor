@@ -11,5 +11,6 @@ namespace GedBooking.Infrastructure.Data
         public AppDbContext(DbContextOptions<AppDbContext> options)  : base(options) { }
 
         public DbSet<ExamBooking> Bookings { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

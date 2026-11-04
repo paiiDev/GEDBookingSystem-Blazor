@@ -1,10 +1,14 @@
 using GedBooking.Application.Features.Bookings.Queries.GetAllBookings;
+using GedBooking.Application.Interfaces.Auth;
 using GedBooking.Application.Interfaces.Repositories;
+using GedBooking.Infrastructure.Auth;
 using GedBooking.Infrastructure.Data;
 using GedBooking.Infrastructure.Mappings;
 using GedBooking.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllBookingsQuery).Assembly));
 
+var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
+var secretKey = Encoding.UTF8.GetBytes(jwtSettingsSection["SecretKey"]!);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettingsSection["Issuer"],
+            ValidAudience = jwtSettingsSection["Audience"],
+            IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(secretKey)
+        };
+    });
+
+builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -48,6 +72,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 
