@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using GedBooking.Application.Features.Bookings.Queries.GetAllBookings;
 using GedBooking.Application.Interfaces.Auth;
 using GedBooking.Application.Interfaces.Repositories;

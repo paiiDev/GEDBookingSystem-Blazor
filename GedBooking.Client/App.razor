@@ -1,6 +1,26 @@
-﻿<Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <!-- DefaultLayout ကို EmptyLayout ထားခြင်းဖြင့် NotAuthorized ဖြစ်ချိန်တွင်
+                 navbar မပါသော စာမျက်နှာကို ပြသပေးပါမည်။ -->
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(EmptyLayout)">
+                <NotAuthorized>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <h4 class="fw-bold text-danger mb-2">Access Denied</h4>
+                            <p class="text-muted mb-0">You do not have permission to view this page.</p>
+                        </div>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

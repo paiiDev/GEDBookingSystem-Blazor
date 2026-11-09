@@ -1,6 +1,9 @@
 ﻿@page "/bookings/create"
 @page "/bookings/edit/{id:int}"
+@layout MainLayout
+@attribute [Authorize]
 @using GedBooking.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
 @inject IBookingService BookingService
 @inject NavigationManager NavManager
 @inject IJSRuntime JS

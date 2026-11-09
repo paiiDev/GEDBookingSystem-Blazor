@@ -1,5 +1,8 @@
 ﻿@page "/bookings"
+@layout MainLayout
+@attribute [Authorize(Roles = ("Admin"))]
 @using GedBooking.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
 @inject IBookingService BookingService
 @inject NavigationManager NavManager
 @inject IJSRuntime JS

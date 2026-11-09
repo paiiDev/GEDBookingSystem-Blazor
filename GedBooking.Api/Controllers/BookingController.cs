@@ -5,11 +5,13 @@ using GedBooking.Application.Features.Bookings.Queries.GetAllBookings;
 using GedBooking.Application.Features.Bookings.Queries.GetBookingById;
 using GedBooking.Shared.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GedBooking.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BookingController : ControllerBase

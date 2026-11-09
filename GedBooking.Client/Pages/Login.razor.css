@@ -1,0 +1,65 @@
+.login-wrapper {
+    animation: login-fade-in 0.4s ease-out;
+}
+
+.login-card {
+    border-radius: 1rem;
+    overflow: hidden;
+    position: relative;
+    margin-top: 1rem;
+}
+
+.login-card::before {
+    content: "";
+    display: block;
+    height: 6px;
+    background: linear-gradient(90deg, #1b6ec2, #3a0647);
+}
+
+.login-logo {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1b6ec2, #3a0647);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    box-shadow: 0 0.5rem 1rem rgba(27, 110, 194, 0.35);
+}
+
+.login-card .form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.login-card .form-control {
+    border-radius: 0.6rem;
+    padding: 0.75rem 1rem;
+}
+
+.login-card .form-control:focus {
+    border-color: #1b6ec2;
+    box-shadow: 0 0 0 0.2rem rgba(27, 110, 194, 0.15);
+}
+
+.login-card .btn-primary {
+    border-radius: 0.6rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+}
+
+@keyframes login-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

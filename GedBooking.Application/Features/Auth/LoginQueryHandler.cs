@@ -19,12 +19,18 @@ namespace GedBooking.Application.Features.Auth
         public async Task<string?> Handle(LoginQuery request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(new GedBooking.Domain.Entities.User { Email = request.Email });
-            if (user == null || user.Password != request.Password)
+            if (user == null)
             {
                 return null; 
             }
 
-            // Generate JWT token
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
+
+            if (!isPasswordValid)
+            {
+                return null;
+            }
+
             var token = _jwtProvider.GenerateToken(user.Id, user.Email, user.Role); // Assuming role is "User" for simplicity
             return token;
         }

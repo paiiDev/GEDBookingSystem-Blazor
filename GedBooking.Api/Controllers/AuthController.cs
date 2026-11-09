@@ -1,10 +1,12 @@
 ﻿using GedBooking.Shared.DTOs.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GedBooking.Api.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -16,7 +18,7 @@ namespace GedBooking.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var query = new GedBooking.Application.Features.Auth.LoginQuery(request.Email, request.Password);
             var token = await _sender.Send(query);
